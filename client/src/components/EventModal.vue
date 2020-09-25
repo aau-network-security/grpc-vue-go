@@ -1,212 +1,266 @@
 <template>
     <b-modal ref="modal" id="create-event-modal" size="lg" centered hide-footer>
-        <template v-slot:modal-title>
-            Create a new Event
-        </template>
+      <template v-slot:modal-title> Create a new Event </template>
         <form ref="form" @submit.stop.prevent="createEvent()">
-            <b-row>
-                <b-col lg="7">
+          <transition-group tag="div" class="div-slider mb-3" :name="!nextStep? 'slideback' : 'slide'">
+            <div v-if="nextStep == false" key="1">
+              <div class="div-slider-item">
+                <b-row>
+                  <b-col lg="7">
                     <b-row>
-                        <b-col md="6">
-                            <b-form-group
-                                    id="fieldset-eventName"
-                                    label="Event Name"
-                                    label-for="eventName"
-                            >
-                                <b-form-input
-                                        id="eventName"
-                                        v-model="eventName"
-                                        type="text"
-                                        required
-                                ></b-form-input>
-                            </b-form-group>
-                            <b-tooltip target="fieldset-eventName" triggers="hover">
-                                The event Name showed in the Home page
-                            </b-tooltip>
-                        </b-col>
-                        <b-col md="6">
-                            <b-form-group
-                                    id="fieldset-eventTag"
-                                    label="Event Tag"
-                                    label-for="eventTag"
-                            >
-                                <b-form-input
-                                        id="eventTag"
-                                        v-model="eventTag"
-                                        type="text"
-                                        required
-                                ></b-form-input>
-                            </b-form-group>
-                            <b-tooltip target="fieldset-eventTag" triggers="hover">
-                                Sub domain in which the event will be available
-                            </b-tooltip>
-                        </b-col>
-                        <b-col md="6">
-<!--                            <b-form-group id="fieldset-eventFinishTime" label="Expected Finish Date" label-for="eventFinishTime">-->
-<!--                                <b-form-input :id="eventFinishTime" v-model="eventFinishTime" type="date"></b-form-input>-->
-<!--                            </b-form-group>-->
-                            <div class="form-group">
-                                <label for="eventStartTime">Expected Start Date</label>
-                                <datepicker v-model="eventStartTime" placeholder="Select Start Date" id="eventStartTime" :disabledDates="disabledDates"></datepicker>
-                                <b-tooltip target="eventStartTime" triggers="hover">
-                                    Date in which the Event should be available online
-                                </b-tooltip>
-                            </div>
-                        </b-col>
-                        <b-col md="6">
-                            <div class="form-group">
-                                <label for="eventFinishTime">Expected Finish Date</label>
-                                <datepicker v-model="eventFinishTime" placeholder="Select Finish Date" id="eventFinishTime" :disabledDates="disabledDatesFinishTime()" :class="{ 'my-is-invalid': submitted && this.eventFinishTime == '' }"></datepicker>
-                                <b-tooltip target="eventFinishTime" triggers="hover">
-                                    Date in which the Event is supposed to finish
-                                </b-tooltip>
-                            </div>
-                        </b-col>
-                        <b-col md="6">
-                            <b-form-group
-                                    id="fieldset-eventAvailability"
-                                    label="Event Availability"
-                                    label-for="eventAvailability"
-                            >
-                                <b-form-input
-                                        id="eventAvailability"
-                                        v-model="eventAvailability"
-                                        type="number"
-                                        min="1"
-                                        step="1"
-                                        required
-                                ></b-form-input>
-                            </b-form-group>
-                            <b-tooltip target="fieldset-eventAvailability" triggers="hover">
-                                Amount of labs to make available initially for the event
-                            </b-tooltip>
-                        </b-col>
-                        <b-col md="6">
-                            <b-form-group
-                                    id="fieldset-eventCapacity"
-                                    label="Event Capacity"
-                                    label-for="eventCapacity"
-                            >
-                                <b-form-input
-                                        id="eventCapacity"
-                                        v-model="eventCapacity"
-                                        @keyup="getAvailability"
-                                        type="number"
-                                        min="2"
-                                        step="1"
-                                        required
-                                ></b-form-input>
-                            </b-form-group>
-                            <b-tooltip target="fieldset-eventCapacity" triggers="hover">
-                                Maximum amount of labs/teams
-                            </b-tooltip>
-                        </b-col>
+                      <b-col md="6">
+                        <b-form-group
+                            id="fieldset-eventName"
+                            label="Event Name"
+                            label-for="eventName"
+                        >
+                          <b-form-input
+                              id="eventName"
+                              v-model="eventName"
+                              type="text"
+                              :class="{ 'my-is-invalid': submitted && this.eventName == ''}"
+                              required
+                          ></b-form-input>
+                        </b-form-group>
+                        <b-tooltip target="fieldset-eventName" triggers="hover">
+                          The event Name showed in the Home page
+                        </b-tooltip>
+                      </b-col>
+                      <b-col md="6">
+                        <b-form-group
+                            id="fieldset-eventTag"
+                            label="Event Tag"
+                            label-for="eventTag"
+                        >
+                          <b-form-input
+                              id="eventTag"
+                              v-model="eventTag"
+                              type="text"
+                              :class="{ 'my-is-invalid': submitted && this.eventTag == ''}"
+                              required
+                          ></b-form-input>
+                        </b-form-group>
+                        <b-tooltip target="fieldset-eventTag" triggers="hover">
+                          Sub domain in which the event will be available
+                        </b-tooltip>
+                      </b-col>
+                      <b-col md="6">
+                        <div class="form-group">
+                          <label for="eventStartTime">Expected Start Date</label>
+                          <datepicker v-model="eventStartTime" placeholder="Select Start Date" id="eventStartTime" :disabledDates="disabledDates"></datepicker>
+                          <b-tooltip target="eventStartTime" triggers="hover">
+                            Date in which the Event should be available online
+                          </b-tooltip>
+                        </div>
+                      </b-col>
+                      <b-col md="6">
+                        <div class="form-group">
+                          <label for="eventFinishTime">Expected Finish Date</label>
+                          <datepicker v-model="eventFinishTime" placeholder="Select Finish Date" id="eventFinishTime" :disabledDates="disabledDatesFinishTime()" :class="{ 'my-is-invalid': submitted && this.eventFinishTime == '' }"></datepicker>
+                          <b-tooltip target="eventFinishTime" triggers="hover">
+                            Date in which the Event is supposed to finish
+                          </b-tooltip>
+                        </div>
+                      </b-col>
+                      <b-col md="6">
+                        <b-form-group
+                            id="fieldset-eventAvailability"
+                            label="Event Availability"
+                            label-for="eventAvailability"
+                        >
+                          <b-form-input
+                              id="eventAvailability"
+                              v-model="eventAvailability"
+                              type="number"
+                              min="1"
+                              step="1"
+                              :class="{ 'my-is-invalid': submitted && this.eventAvailability < 1}"
+                              required
+                          ></b-form-input>
+                        </b-form-group>
+                        <b-tooltip target="fieldset-eventAvailability" triggers="hover">
+                          Amount of labs to make available initially for the event
+                        </b-tooltip>
+                      </b-col>
+                      <b-col md="6">
+                        <b-form-group
+                            id="fieldset-eventCapacity"
+                            label="Event Capacity"
+                            label-for="eventCapacity"
+                        >
+                          <b-form-input
+                              id="eventCapacity"
+                              v-model="eventCapacity"
+                              type="number"
+                              min="2"
+                              step="1"
+                              :class="{ 'my-is-invalid': submitted && this.eventCapacity < 2}"
+                              required
+                          ></b-form-input>
+                        </b-form-group>
+                        <b-tooltip target="fieldset-eventCapacity" triggers="hover">
+                          Maximum amount of labs/teams
+                        </b-tooltip>
+                      </b-col>
                     </b-row>
-                </b-col>
-                <b-col v-if="frontends" lg="5" class="myfrontends-field">
+                  </b-col>
+                  <b-col v-if="frontends" lg="5" class="myfrontends-field">
                     <span>Frontends</span>
                     <div class="frontends-field-modal p-2 mt-2 vertical-center" :class="{ 'my-is-invalid': submitted && this.selectedFrontends == null }">
-                        <b-form-group>
-                            <b-form-radio-group
-                                    id="frontends"
-                                    v-model="selectedFrontends"
-                                    :options="frontends"
-                                    name="frontends"
-                                    class="ml-4"
-                                    aria-label="Individual flavours"
-                                    stacked
-                            ></b-form-radio-group>
-                        </b-form-group>
-                        <b-tooltip target="frontends" triggers="hover">
-                            List of available Frontends
-                        </b-tooltip>
+                      <b-form-group>
+                        <b-form-radio-group
+                            id="frontends"
+                            v-model="selectedFrontends"
+                            :options="frontends"
+                            name="frontends"
+                            class="ml-4"
+                            aria-label="Individual flavours"
+                            stacked
+                        ></b-form-radio-group>
+                      </b-form-group>
+                      <b-tooltip target="frontends" triggers="hover">
+                        List of available Frontends
+                      </b-tooltip>
                     </div>
-                </b-col>
-                <b-col md="12" class="mt-3 mt-lg-0" style="z-index: 2">
+                    <div class="custom-control custom-switch mt-2 mt-sm-2 mt-md-5">
+                      <input type="checkbox" class="custom-control-input" id="isStepByStep" v-model="isStepByStep" name="isStepByStep">
+                      <label class="custom-control-label" for="isStepByStep">Enable Step-by-Step</label>
+                    </div>
+                    <b-tooltip target="isStepByStep" triggers="hover">
+                      Automatically enabled with more than 10 challenges
+                    </b-tooltip>
+                  </b-col>
+                  <b-col md="12" class="mt-3 mt-lg-0" style="z-index: 2">
                     <b-form-group>
-                        <div class="challenges-field-modal frontends-field-modal p-3 mt-2" :class="{ 'my-is-invalid': submitted && this.selectedChallenges.length == 0 }">
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="nav flex-column nav-pills sticky-top" id="challengesCategory" role="tablist" aria-orientation="vertical">
-                                        <a class="nav-link active show" id="web-exploit-tab" data-toggle="pill" href="#web-exploit" role="tab" aria-controls="web-exploit" aria-selected="true">Web_Exploit.</a>
-                                        <a class="nav-link" id="forensics-tab" data-toggle="pill" href="#forensics" role="tab" aria-controls="forensics" aria-selected="false">Forensics</a>
-                                        <a class="nav-link" id="binary-tab" data-toggle="pill" href="#binary" role="tab" aria-controls="binary" aria-selected="false">Binary</a>
-                                        <a class="nav-link" id="reverse-eng-tab" data-toggle="pill" href="#reverse-eng" role="tab" aria-controls="reverse-eng" aria-selected="false">Reverse_Eng.</a>
-                                        <a class="nav-link" id="cryptography-tab" data-toggle="pill" href="#cryptography" role="tab" aria-controls="cryptography" aria-selected="false">Cryptography</a>
-                                    </div>
-                                </div>
-                                <div class="col-9">
-                                    <div class="tab-content" id="v-pills-tabContent">
-                                        <div class="tab-pane fade active show" id="web-exploit" role="tabpanel" aria-labelledby="web-exploit-tab">
-                                            <b-form-checkbox-group
-                                                    id="challengesWE"
-                                                    v-model="selectedChallenges"
-                                                    :options="challengesTextWE"
-                                                    name="challengesWE"
-                                                    class="ml-4"
-                                                    stacked
-                                            ></b-form-checkbox-group>
-                                        </div>
-                                        <div class="tab-pane fade" id="forensics" role="tabpanel" aria-labelledby="forensics-tab">
-                                            <b-form-checkbox-group
-                                                    id="challengesF"
-                                                    v-model="selectedChallenges"
-                                                    :options="challengesTextF"
-                                                    name="challengesF"
-                                                    class="ml-4"
-                                                    stacked
-                                            ></b-form-checkbox-group>
-                                        </div>
-                                        <div class="tab-pane fade" id="binary" role="tabpanel" aria-labelledby="binary-tab">
-                                            <b-form-checkbox-group
-                                                    id="challengesB"
-                                                    v-model="selectedChallenges"
-                                                    :options="challengesTextB"
-                                                    name="challengesB"
-                                                    class="ml-4"
-                                                    stacked
-                                            ></b-form-checkbox-group>
-                                        </div>
-                                        <div class="tab-pane fade" id="reverse-eng" role="tabpanel" aria-labelledby="reverse-eng-tab">
-                                            <b-form-checkbox-group
-                                                    id="challengesRE"
-                                                    v-model="selectedChallenges"
-                                                    :options="challengesTextRE"
-                                                    name="challengesRE"
-                                                    class="ml-4"
-                                                    stacked
-                                            ></b-form-checkbox-group>
-                                        </div>
-                                        <div class="tab-pane fade" id="cryptography" role="tabpanel" aria-labelledby="cryptography-tab">
-                                            <b-form-checkbox-group
-                                                    id="challengesC"
-                                                    v-model="selectedChallenges"
-                                                    :options="challengesTextC"
-                                                    name="challengesC"
-                                                    class="ml-4"
-                                                    stacked
-                                            ></b-form-checkbox-group>
-                                        </div>
-                                    </div>
-                                </div>
+                      <div class="challenges-field-modal frontends-field-modal p-3 mt-2" :class="{ 'my-is-invalid': submitted && this.selectedChallenges.length == 0 }">
+                        <div class="row">
+                          <div class="col-3">
+                            <div class="nav flex-column nav-pills sticky-top" id="challengesCategory" role="tablist" aria-orientation="vertical">
+                              <a class="nav-link active show" id="web-exploit-tab" data-toggle="pill" href="#web-exploit" role="tab" aria-controls="web-exploit" aria-selected="true">Web_Exploit.</a>
+                              <a class="nav-link" id="forensics-tab" data-toggle="pill" href="#forensics" role="tab" aria-controls="forensics" aria-selected="false">Forensics</a>
+                              <a class="nav-link" id="binary-tab" data-toggle="pill" href="#binary" role="tab" aria-controls="binary" aria-selected="false">Binary</a>
+                              <a class="nav-link" id="reverse-eng-tab" data-toggle="pill" href="#reverse-eng" role="tab" aria-controls="reverse-eng" aria-selected="false">Reverse_Eng.</a>
+                              <a class="nav-link" id="cryptography-tab" data-toggle="pill" href="#cryptography" role="tab" aria-controls="cryptography" aria-selected="false">Cryptography</a>
                             </div>
+                          </div>
+                          <div class="col-9">
+                            <div class="tab-content" id="v-pills-tabContent">
+                              <div class="tab-pane fade active show" id="web-exploit" role="tabpanel" aria-labelledby="web-exploit-tab">
+                                <b-form-checkbox-group
+                                    id="challengesWE"
+                                    v-model="selectedChallenges"
+                                    :options="challengesTextWE"
+                                    name="challengesWE"
+                                    class="ml-4"
+                                    stacked
+                                ></b-form-checkbox-group>
+                              </div>
+                              <div class="tab-pane fade" id="forensics" role="tabpanel" aria-labelledby="forensics-tab">
+                                <b-form-checkbox-group
+                                    id="challengesF"
+                                    v-model="selectedChallenges"
+                                    :options="challengesTextF"
+                                    name="challengesF"
+                                    class="ml-4"
+                                    stacked
+                                ></b-form-checkbox-group>
+                              </div>
+                              <div class="tab-pane fade" id="binary" role="tabpanel" aria-labelledby="binary-tab">
+                                <b-form-checkbox-group
+                                    id="challengesB"
+                                    v-model="selectedChallenges"
+                                    :options="challengesTextB"
+                                    name="challengesB"
+                                    class="ml-4"
+                                    stacked
+                                ></b-form-checkbox-group>
+                              </div>
+                              <div class="tab-pane fade" id="reverse-eng" role="tabpanel" aria-labelledby="reverse-eng-tab">
+                                <b-form-checkbox-group
+                                    id="challengesRE"
+                                    v-model="selectedChallenges"
+                                    :options="challengesTextRE"
+                                    name="challengesRE"
+                                    class="ml-4"
+                                    stacked
+                                ></b-form-checkbox-group>
+                              </div>
+                              <div class="tab-pane fade" id="cryptography" role="tabpanel" aria-labelledby="cryptography-tab">
+                                <b-form-checkbox-group
+                                    id="challengesC"
+                                    v-model="selectedChallenges"
+                                    :options="challengesTextC"
+                                    name="challengesC"
+                                    class="ml-4"
+                                    stacked
+                                ></b-form-checkbox-group>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <template v-slot:label>
-                            <b>Choose your Challenges:</b>
-                            <b-form-checkbox
-                                    v-model="selectAllChallenges"
-                                    aria-describedby="challengesTag"
-                                    aria-controls="challengesTag"
-                                    @change="toggleAllChallenges"
-                            >
-                                {{ selectAllChallenges ? 'Un-select All' : 'Select All' }}
-                            </b-form-checkbox>
-                        </template>
+                      </div>
+                      <template v-slot:label>
+                        <b>Choose your Challenges:</b>
+                        <b-form-checkbox
+                            v-model="selectAllChallenges"
+                            aria-describedby="challengesTag"
+                            aria-controls="challengesTag"
+                            @change="toggleAllChallenges"
+                        >
+                          {{ selectAllChallenges ? 'Un-select All' : 'Select All' }}
+                        </b-form-checkbox>
+                      </template>
                     </b-form-group>
-                </b-col>
-            </b-row>
-            <b-button variant="secondary" @click="$bvModal.hide('create-event-modal')">Close</b-button>
-            <b-button type="submit" class="btn-haaukins float-right" :disabled="!isDisabled">Create</b-button>
+                  </b-col>
+                </b-row>
+              </div>
+            </div>
+            <div v-if="nextStep == true" key="2">
+              <div v-if="isStepByStep == true" class="div-slider-item" style="overflow-y: auto; overflow-x: hidden">
+                <div class="row">
+                  <div class="col-12 col-sm-9">
+                    <span>Feel free to move challenges in different steps, add steps or remove some!</span>
+                  </div>
+                  <div class="col-12 col-sm-3">
+                    <a class="badge badge-haaukins float-right p-2" @click="createSteps(steps.length + 1)">Add Step</a>
+                  </div>
+                  <div class="col-12 text-center">
+                    <span class="text-danger">{{stepsError}}</span>
+                  </div>
+                </div>
+                <div v-for="(step, count) in steps" v-bind:key="step.l">
+                  <div class="my-4">
+                    <p class="challenges-step px-2">
+                      Step {{count + 1}}:
+                      <a class="remove-chal float-right" @click="removeStep(count, steps.length)">X</a>
+                      <span class="float-right">Default range [{{step.l}}, {{step.h}}]</span>
+                    </p>
+                      <draggable class="row" :list="step.chals" group="tags" style="margin-left: 0px; margin-right: 0px">
+                          <div
+                              class="col-12 col-sm-6 challenges-step-group px-2 py-1"
+                              v-for="(c, idx) in step.chals"
+                              :key="c.tag"
+                          >
+                            <p class="mb-0 challenges-step-name">
+                              {{ c.name }}
+                              <a class="remove-chal float-right" @click="removeChallengeFromStep(count, idx)">X</a>
+                              <span class="float-right">[{{c.points}}]</span>
+                            </p>
+                          </div>
+                      </draggable>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="div-slider-item text-center">
+                <p class="mt-5">Step-by-Steps is <strong>NOT ENABLED</strong>. You can continue by creating the Event!</p>
+                <p class="text-black-50">{{stepsError}}</p>
+                <img src="../assets/warning.svg" class="img-fluid mt-5" width="500"/>
+              </div>
+            </div>
+          </transition-group>
+          <b-button variant="secondary" @click="$bvModal.hide('create-event-modal')">Close</b-button>
+          <b-button type="submit" class="btn-haaukins float-right" :disabled="!isDisabled" :class="{ 'd-none': !nextStep }">Create</b-button>
+          <b-button variant="secondary" class="float-right mr-2" @click="goNextStep()">{{nextStepValue}}</b-button>
         </form>
     </b-modal>
 </template>
@@ -215,10 +269,12 @@
     import { Empty, CreateEventRequest } from "daemon_pb";
     import { daemonclient } from "../App";
     import Datepicker from "vuejs-datepicker"
+    import draggable from 'vuedraggable'
+
 
     export default {
         name: "EventModal",
-        components: { Datepicker},
+        components: { Datepicker, draggable},
         props: {
             memoryProp: String
         },
@@ -226,6 +282,9 @@
             return {
                 error: null,
                 submitted: false,
+                nextStep: false,
+                nextStepValue: "Next",
+                steps: [], stepsError: "", isStepByStep: false,
                 eventName: '',
                 eventTag: '',
                 eventAvailability: 0,
@@ -251,27 +310,117 @@
             this.getFrontends();
             this.handleButtons();
         },
+        watch: {
+            selectedChallenges: function (){
+              if (this.selectedChallenges.length > 10) {
+                this.isStepByStep = true
+              }
+            },
+            eventCapacity: function () {
+              this.eventAvailability = Math.ceil(this.eventCapacity / 7)
+            },
+            steps: {
+              handler: function () {
+                for (let z = 0; z < this.steps.length; z++) {
+                  if (this.steps[z].chals.length == 0) {
+                    this.removeStep(z, this.steps.length)
+                  }
+                }
+              },
+              deep: true
+            }
+        },
         methods: {
             disabledDatesFinishTime: function() {
                 return {
                     to: new Date(this.eventStartTime - 8640000)
                 }
             },
+            goNextStep: function () {
+              this.stepsError = ""
+              if (!this.nextStep){
+                  this.steps = []
+                  if(this.handleSubmit()){
+                      return
+                    }
+                    if (this.selectedChallenges.length < 2){
+                      this.isStepByStep = false
+                      this.stepsError = "You can not enable Step-by-Step with just a challenge"
+                    }
+                    if (this.selectedChallenges.length > 10){
+                      this.isStepByStep = true
+                    }
+                    if (this.isStepByStep){
+                      this.defineSteps()
+                    }
+                    this.nextStep = true
+                    this.nextStepValue = "Back"
+                    return
+                }
+                this.nextStep = false
+                this.nextStepValue = "Next"
+            },
+            defineSteps: function (){
+              let n_selected_chals = this.selectedChallenges.length
+              let n_steps = 2
+
+              //Define the number of steps
+              if (n_selected_chals > 11 && n_selected_chals <= 15){
+                n_steps = 3
+              }else if (n_selected_chals > 16 && n_selected_chals <= 25){
+                n_steps = 4
+              }else if (n_selected_chals > 26 && n_selected_chals <= 41){
+                n_steps = 5
+              }else if (n_selected_chals > 42){
+                n_steps = 6
+              }
+              this.createSteps(n_steps)
+
+            },
+            createSteps: function (n_steps){
+              if (n_steps > 6) {
+                  this.stepsError = "You can not create more than 6 steps!"
+                  return
+              }
+              this.steps = []
+              let lowest = this.selectedChallenges.reduce((min, p) => p.points < min ? p.points : min, this.selectedChallenges[0].points);
+              let highest = this.selectedChallenges.reduce((max, p) => p.points > max ? p.points : max, this.selectedChallenges[0].points);
+              let n_selected_chals = this.selectedChallenges.length
+
+              //Create the steps
+              let range = Math.floor((highest - lowest) / n_steps)
+              for (let i = 0; i < n_steps; i++) {
+                this.steps.push({l: lowest, h: lowest + range - 1, chals: []})
+                lowest = lowest + range
+              }
+              this.steps[n_steps - 1].h = highest
+
+              //Assign challenges to the steps
+              for (let j = 0; j < n_selected_chals; j++) {
+                for (let z = 0; z < this.steps.length; z++) {
+                  if (this.selectedChallenges[j].points >= this.steps[z].l && this.selectedChallenges[j].points <= this.steps[z].h){
+                    this.steps[z].chals.push(this.selectedChallenges[j])
+                  }
+                }
+              }
+              for (let z = 0; z < this.steps.length; z++) {
+                this.steps[z].chals.sort((a, b)=> a.points - b.points)
+              }
+            },
+            removeChallengeFromStep: function (step_id, chal_id){
+              this.steps[step_id].chals.splice(chal_id, 1);
+                if (this.steps[step_id].chals.length == 0) {
+                    this.removeStep(step_id, this.steps.length)
+                }
+            },
+            removeStep: function (id, n_steps){
+                this.steps.splice(id, 1);
+                this.createSteps(n_steps - 1)
+            },
             handleButtons: function(){
                 if (this.memoryProp < 85) {
                     this.isDisabled = true
                 }
-            },
-            getAvailability: function () {
-              if (this.eventCapacity >= 70) {
-                this.eventAvailability = Math.round(this.eventCapacity / 4) - 3
-                return
-              }
-              if (this.eventCapacity < 15) {
-                this.eventAvailability = Math.round(this.eventCapacity / 3)
-                return
-              }
-              this.eventAvailability = Math.round(this.eventCapacity / 4)
             },
             toggleAllChallenges: function(checked) {
                 this.selectedChallenges = checked ? this.challengesWE
@@ -312,11 +461,10 @@
                 }
             },
             createEvent: function () {
-
-                if(this.handleSubmit()){
-                    return
+                //todo maybe make more checks before create the event
+                if (this.isStepByStep){
+                  this.selectedChallenges = []
                 }
-
                 let getRequest = new CreateEventRequest();
                 getRequest.setName(this.eventName);
                 getRequest.setTag(this.eventTag);
@@ -324,11 +472,18 @@
                 getRequest.setCapacity(this.eventCapacity);
                 getRequest.setFinishtime(this.eventFinishTime);
                 getRequest.setStarttime(this.eventStartTime.toString());
+                getRequest.addFrontends(this.selectedFrontends)
                 this.selectedChallenges.forEach(function(challenge) {
-                    getRequest.addExercises(challenge)
+                  getRequest.addExercises(challenge.tag)
                 });
 
-                getRequest.addFrontends(this.selectedFrontends)
+                for (let j = 0; j < this.steps.length; j++) {
+                  let proto_step = new CreateEventRequest.Step()
+                  for (let z = 0; z < this.steps[j].chals.length; z++) {
+                    proto_step.addExercises(this.steps[j].chals[z].tag)
+                  }
+                  getRequest.addSteps(proto_step)
+                }
 
                 this.$emit('createEvent', getRequest)
 
@@ -340,12 +495,16 @@
                     this.error = err;
                     let exercisesListObj = response.getExercisesList();
                     exercisesListObj.forEach(function (element) {
+                        let points = 0
                         let childrenChallengesObj = element.getExerciseinfoList();
                         that.childrenChallenges = "   (";
 
                         for (let i = 0; i < childrenChallengesObj.length; i++){
                             that.cat = childrenChallengesObj[i].getCategory();
                             that.childrenChallenges+= childrenChallengesObj[i].getName() + ", "
+                            if (childrenChallengesObj[i].getPoints() > points) {
+                                points = childrenChallengesObj[i].getPoints()
+                            }
                         }
                         that.childrenChallenges = that.childrenChallenges.substring(0, that.childrenChallenges.length - 2)
                         that.childrenChallenges+= ")";
@@ -356,27 +515,27 @@
 
                         let taglist = element.getTagsList();
                         let name = element.getName();
-                        let parentChallenge = { text: name + that.childrenChallenges, value: taglist[0] };
+                        let parentChallenge = { text: name + that.childrenChallenges, value: {tag: taglist[0], name: name, points: points} };
                         switch (that.cat) {
                             case "Web exploitation":
                                 that.challengesTextWE.push(parentChallenge);
-                                that.challengesWE.push(taglist[0]);
+                                that.challengesWE.push({tag: taglist[0], name: name, points: points});
                                 break;
                             case "Forensics":
                                 that.challengesTextF.push(parentChallenge);
-                                that.challengesF.push(taglist[0]);
+                                that.challengesF.push({tag: taglist[0], name: name, points: points});
                                 break;
                             case "Binary":
                                 that.challengesTextB.push(parentChallenge);
-                                that.challengesB.push(taglist[0]);
+                                that.challengesB.push({tag: taglist[0], name: name, points: points});
                                 break;
                             case "Cryptography":
                                 that.challengesTextC.push(parentChallenge);
-                                that.challengesC.push(taglist[0]);
+                                that.challengesC.push({tag: taglist[0], name: name, points: points});
                                 break;
                             case "Reverse Engineering":
                                 that.challengesTextRE.push(parentChallenge);
-                                that.challengesRE.push(taglist[0]);
+                                that.challengesRE.push({tag: taglist[0], name: name, points: points});
                                 break;
                         }
 
